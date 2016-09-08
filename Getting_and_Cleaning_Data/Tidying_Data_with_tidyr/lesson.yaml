@@ -2,9 +2,9 @@
   Course: Getting and Cleaning Data
   Lesson: Tidying Data with tidyr
   Author: Nick Carchedi
-  Type: Coursera
+  Type: Standard
   Organization: JHU Biostat
-  Version: 2.2.14
+  Version: 2.2.15
 
 - Class: text
   Output: In this lesson, you'll learn how to tidy your data with the tidyr package.
@@ -143,10 +143,16 @@
   Script: script3.R
 
 - Class: cmd_question
-  Output: Lastly, we want the values in the class column to simply be 1, 2, ..., 5 and not class1, class2, ..., class5. We can use the extract_numeric() function from tidyr to accomplish this. To see how it works, try extract_numeric("class5").
-  CorrectAnswer: extract_numeric("class5")
-  AnswerTests: omnitest('extract_numeric("class5")')
-  Hint: Type extract_numeric("class5") to see how it works.
+  Output: readr is required for certain data manipulations, such as `parse_numeric(), which will be used in the next question.  Let's, (re)load the package with library(readr).
+  CorrectAnswer: library(readr)
+  AnswerTests: omnitest('library(readr)')
+  Hint: Type library(readr) to (re)load the readr package.
+
+- Class: cmd_question
+  Output: Lastly, we want the values in the class column to simply be 1, 2, ..., 5 and not class1, class2, ..., class5. We can use the parse_numeric() function from readr to accomplish this. To see how it works, try parse_numeric("class5").
+  CorrectAnswer: parse_numeric("class5")
+  AnswerTests: omnitest('parse_numeric("class5")')
+  Hint: Type parse_numeric("class5") to see how it works.
 
 - Class: script
   Output: Now, the final step. Edit the R script, then save it and type submit() when you are ready. Type reset() to reset the script to its original state.
@@ -256,3 +262,10 @@
 - Class: text
   Output: In this lesson, you learned how to tidy data with tidyr and dplyr. These tools will help you spend less time and energy getting your data ready to analyze and more time actually analyzing it.
 
+- Class: mult_question
+  Output: "Would you like to receive credit for completing this course on
+    Coursera.org?"
+  CorrectAnswer: NULL
+  AnswerChoices: Yes;No
+  AnswerTests: coursera_on_demand()
+  Hint: ""

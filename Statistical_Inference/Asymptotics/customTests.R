@@ -15,79 +15,6 @@ equiv_val <- function(correctVal){
   
 }
 
-omnitest <- function(correctExpr=NULL, correctVal=NULL, strict=FALSE, eval_for_class=as.logical(NA)){
-  e <- get("e", parent.frame())
-  # Trivial case
-  if(is.null(correctExpr) && is.null(correctVal))return(TRUE)
-  # If eval_for_class is not specified, default to customTests$EVAL_FOR_CLASS.
-  # If the latter is not set, default to TRUE.
-  if(is.na(eval_for_class)){
-    if(exists("EVAL_FOR_CLASS", customTests)){
-      eval_for_class <- isTRUE(customTests$EVAL_FOR_CLASS)
-    } else {
-      eval_for_class <- TRUE
-    }
-  }
-  # If eval_for_class is TRUE, create a parent environment for that in
-  # in which evaluations for class are to be made.
-  eval_env <- if(eval_for_class){
-    cleanEnv(e$snapshot)
-  } else {
-    NULL
-  }
-  # Testing for correct expression only
-  if(!is.null(correctExpr) && is.null(correctVal)){
-    err <- try({
-      good_expr <- parse(text=correctExpr)[[1]]
-      ans <- is_robust_match(good_expr, e$expr, eval_for_class, eval_env)
-    }, silent=TRUE)
-    if (is(err, "try-error")) {
-      return(expr_identical_to(correctExpr))
-    } else {
-      return(ans)
-    }
-  }
-  # Testing for both correct expression and correct value
-  # Value must be character or single number
-  valGood <- as.logical(NA)
-  if(!is.null(correctVal)){
-    if(is.character(e$val)){
-      valResults <- expectThat(e$val,
-                               is_equivalent_to(correctVal, label=correctVal),
-                               label=(e$val))
-      if(is(e, "dev") && !valResults$passed)swirl_out(valResults$message)
-      valGood <- valResults$passed
-      # valGood <- val_matches(correctVal)
-    } else if(!is.na(e$val) && is.numeric(e$val) && length(e$val) == 1){
-      cval <- try(as.numeric(correctVal), silent=TRUE)
-      valResults <- expectThat(e$val, 
-                               equals(cval, label=correctVal),
-                               label=toString(e$val))
-      if(is(e, "dev") && !valResults$passed)swirl_out(valResults$message)
-      valGood <- valResults$passed
-    }
-  }
-  # If a correct expression is given attempt a robust match with user's expression.
-  exprGood <- TRUE
-  if(!is.null(correctExpr)){
-    err <- try({
-      good_expr <- parse(text=correctExpr)[[1]]
-      ans <- is_robust_match(good_expr, e$expr, eval_for_class, eval_env)
-    }, silent=TRUE)
-    exprGood <- ifelse(is(err, "try-error"), expr_identical_to(correctExpr), ans)
-  }
-  if((isTRUE(valGood) || is.na(valGood)) && exprGood){
-    return(TRUE)
-  } else if (isTRUE(valGood) && !exprGood && !strict){
-    swirl_out("That's not the expression I expected but it works.")
-    swirl_out("I've executed the correct expression in case the result is needed in an upcoming question.")
-    eval(parse(text=correctExpr),globalenv())
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
-}
-
 is_robust_match <- function(expr1, expr2, eval_for_class, eval_env=NULL){
   expr1 <- rmatch_calls(expr1, eval_for_class, eval_env)
   expr2 <- rmatch_calls(expr2, eval_for_class, eval_env)
@@ -168,3 +95,52 @@ rmatch_calls <- function(expr, eval_for_class=FALSE, eval_env=NULL){
 
 isS3 <- function(fct)isTRUE(grep("UseMethod", body(fct)) > 0)
 dprs <- function(expr)deparse(expr, width.cutoff=500)
+
+# Get the swirl state
+getState <- function(){
+  # Whenever swirl is running, its callback is at the top of its call stack.
+  # Swirl's state, named e, is stored in the environment of the callback.
+  environment(sys.function(1))$e
+}
+
+# Get the value which a user either entered directly or was computed
+# by the command he or she entered.
+getVal <- function(){
+  getState()$val
+}
+
+# Get the last expression which the user entered at the R console.
+getExpr <- function(){
+  getState()$expr
+}
+
+coursera_on_demand <- function(){
+  selection <- getState()$val
+  if(selection == "Yes"){
+    email <- readline("What is your email address? ")
+    token <- readline("What is your assignment token? ")
+    
+    payload <- sprintf('{  
+      "assignmentKey": "pZYNQ681EeWxIhKVGQB0WQ",
+      "submitterEmail": "%s",  
+      "secret": "%s",  
+      "parts": {  
+        "G2sMq": {  
+          "output": "correct"  
+        }  
+      }  
+    }', email, token)
+    url <- 'https://www.coursera.org/api/onDemandProgrammingScriptSubmissions.v1'
+  
+    respone <- httr::POST(url, body = payload)
+    if(respone$status_code >= 200 && respone$status_code < 300){
+      message("Grade submission succeeded!")
+    } else {
+      message("Grade submission failed.")
+      message("Press ESC if you want to exit this lesson and you")
+      message("want to try to submit your grade at a later time.")
+      return(FALSE)
+    }
+  }
+  TRUE
+}

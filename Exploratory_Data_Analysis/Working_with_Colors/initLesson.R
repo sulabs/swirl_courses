@@ -1,14 +1,22 @@
 library(RColorBrewer)
 library(datasets)
 
+# For compatibility with 2.2.21
+.get_course_path <- function(){
+  tryCatch(swirl:::swirl_courses_dir(),
+           error = function(c) {file.path(find.package("swirl"),"Courses")}
+  )
+}
+
 # Put initialization code in this file.
-path_to_course <- file.path(find.package("swirl"),"Courses/Exploratory_Data_Analysis/Working_with_Colors")
+path_to_course <- file.path(.get_course_path(),
+  "Exploratory_Data_Analysis","Working_with_Colors")
 try(dev.off(),silent=TRUE)
 plot.new()
 
 pathtofile <- function(fileName){
-  mypath <- file.path(find.package("swirl"),
-                      "Courses/Exploratory_Data_Analysis/Working_with_Colors/",
+  mypath <- file.path(.get_course_path(),
+    "Exploratory_Data_Analysis","Working_with_Colors/",
                       fileName)
 }
 fxfer <- function(fileName){

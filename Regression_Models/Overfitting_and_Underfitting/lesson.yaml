@@ -2,7 +2,7 @@
   Course: Regression Models
   Lesson: Overfitting and Underfitting
   Author: Swirl Coders
-  Type: Coursera
+  Type: Standard
   Organization: Johns Hopkins Bloomberg School of Public Health
   Version: 2.2.0
 
@@ -56,7 +56,7 @@
 
 - Class: cmd_question
   Output: "Recall that the Swiss data set consists of a standardized fertility measure and socioeconomic indicators for each of 47 French-speaking provinces of Switzerland in 1888. Fertility was thought to depend on an intercept and five factors denoted as Agriculture, Examination, Education, Catholic, and Infant Mortality. To begin our ANOVA example, regress Fertility on Agriculture and store the result in a variable named fit1."
-  CorrectAnswer: fit1 <- lm(Fertiliy ~ Agriculture, swiss)
+  CorrectAnswer: fit1 <- lm(Fertility ~ Agriculture, swiss)
   AnswerTests: creates_lm_model('fit1 <- lm(Fertility ~ Agriculture, swiss)')
   Hint: Enter fit1 <- lm(Fertility ~ Agriculture, swiss) or something equivalent at the R prompt.
 
@@ -154,3 +154,11 @@
 
 - Class: text
   Output: "That completes the lesson on underfitting and overfitting."
+
+- Class: mult_question
+  Output: "Would you like to receive credit for completing this course on
+    Coursera.org?"
+  CorrectAnswer: NULL
+  AnswerChoices: Yes;No
+  AnswerTests: coursera_on_demand()
+  Hint: ""
